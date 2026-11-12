@@ -1,0 +1,9 @@
+{
+  "name": "jp-water-website",
+  "version": "1.0.0",
+  "private": true,
+  "description": "JP Water Treatment Solutions - static website (optional: run locally with npm start)",
+  "scripts": {
+    "start": "npx http-server jp-water-site -p 8080 -c-1 -o"
+  }
+}
