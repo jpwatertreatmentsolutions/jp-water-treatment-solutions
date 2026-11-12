@@ -1,0 +1,32 @@
+# Apache / cPanel / Hostinger. Delete this file if your host is Netlify or Cloudflare Pages (use _headers instead).
+Options -Indexes
+ErrorDocument 404 /404.html
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# Optional: always use www. Replace example.com, then remove the leading # on the next 2 lines.
+#RewriteCond %{HTTP_HOST} ^example\.com$ [NC]
+#RewriteRule ^ https://www.example.com%{REQUEST_URI} [L,R=301]
+</IfModule>
+<IfModule mod_deflate.c>
+AddOutputFilterByType DEFLATE text/html text/css application/javascript image/svg+xml application/json application/xml
+</IfModule>
+<IfModule mod_expires.c>
+ExpiresActive On
+ExpiresByType image/jpeg "access plus 1 year"
+ExpiresByType image/webp "access plus 1 year"
+ExpiresByType image/png "access plus 1 year"
+ExpiresByType image/svg+xml "access plus 1 month"
+ExpiresByType text/css "access plus 1 month"
+ExpiresByType application/javascript "access plus 1 month"
+ExpiresByType text/html "access plus 0 seconds"
+</IfModule>
+<IfModule mod_headers.c>
+Header set X-Content-Type-Options "nosniff"
+Header set Referrer-Policy "strict-origin-when-cross-origin"
+Header set X-Frame-Options "SAMEORIGIN"
+Header set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+# After HTTPS works on your domain, remove the # on the next line (HSTS):
+#Header set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+</IfModule>
