@@ -258,13 +258,13 @@ JUMP='<nav class="jump" aria-label="Jump to a service"><div class="wrap">'+"".jo
 t="Water Treatment Services in Coimbatore | JP Water";d="STP, RO, ETP, softener and AMC water treatment from Coimbatore for homes, apartments, factories and projects across Tamil Nadu, Kerala and Bengaluru."
 PAGES["/services/"]=(t,d,"Water Treatment Services in Tamil Nadu, Kerala & Bengaluru","STP, RO, ETP, softener, AMC, industrial; Coimbatore base")
 SERVICE_META={
-    "stp": ("STP Plant Installation in Coimbatore, Tamil Nadu | JP Water","STP plant manufacturing and installation in Coimbatore for apartments, communities, hospitals and commercial sites, with commissioning support across Tamil Nadu, Kerala and Bengaluru."),
-    "stp-operation": ("STP Plant Operation and Training in Coimbatore | JP Water","STP operation, manpower and staff training for apartment and commercial plants across Tamil Nadu, Kerala and Bengaluru with practical support."),
-    "ro-plant": ("RO Plant Installation in Coimbatore, Tamil Nadu | JP Water","RO plant installation and drinking-water treatment for homes, hospitals, factories and commercial spaces across Tamil Nadu, Kerala and Bengaluru with maintenance support."),
-    "etp": ("ETP and Industrial Wastewater Treatment in Coimbatore | JP Water","ETP and industrial wastewater treatment for factories and businesses in Coimbatore, Tamil Nadu, Kerala and Bengaluru with design and maintenance support."),
-    "water-softener": ("Water Softener Solutions in Coimbatore, Tamil Nadu | JP Water","Water softener systems for hard water in homes, hospitals, hotels and commercial buildings across Tamil Nadu, Kerala and Bengaluru with treatment support."),
-    "amc": ("AMC and Maintenance for Water Treatment Plants | JP Water","Annual maintenance contracts for STP, RO, ETP and softener plants with scheduled servicing, inspections and reports across Tamil Nadu, Kerala and Bengaluru."),
-    "industrial-water-treatment": ("Industrial Water Treatment in Coimbatore, Tamil Nadu | JP Water","Industrial water treatment systems for process, boiler, cooling and reuse needs in Coimbatore, Tamil Nadu, Kerala and Bengaluru with project-based support."),
+    "stp": ("STP Plant Installation in Coimbatore | JP Water Treatment","JP Water Treatment Solutions manufactures and installs sewage treatment plants for apartments and buildings across Tamil Nadu. Contact our Coimbatore team."),
+    "stp-operation": ("STP Operation & Manpower | JP Water Treatment Coimbatore","Discuss STP operator manpower, plant operation guidance and staff training with JP Water Treatment Solutions in Coimbatore. Share your site requirements today."),
+    "ro-plant": ("RO Plant Installation in Coimbatore | JP Water Treatment","JP Water Treatment Solutions provides RO plant solutions for drinking water and process needs. Discuss source-water quality, output and installation needs."),
+    "etp": ("ETP Plant & Industrial Wastewater Treatment | JP Solutions","Discuss ETP solutions for industrial wastewater with JP Water Treatment Solutions. Treatment scope depends on effluent quality, daily quantity and reuse goals."),
+    "water-softener": ("Water Softener Systems in Coimbatore | JP Water Treatment","Need hard-water treatment? JP Water Treatment Solutions provides water softener systems based on water hardness, flow rate and usage needs. Contact our team."),
+    "amc": ("Water Treatment AMC & Plant Maintenance | JP Coimbatore","Plan scheduled maintenance for STP, RO, ETP and water softener plants. Discuss AMC visits and service scope with JP Water Treatment Solutions in Coimbatore."),
+    "industrial-water-treatment": ("Industrial Water Treatment Solutions | JP Water Treatment","Explore industrial water treatment for process, boiler and cooling needs. Discuss filtration, softening and RO requirements with JP Water Treatment Solutions."),
 }
 for s in S:
     title,desc=SERVICE_META[s['id']]
