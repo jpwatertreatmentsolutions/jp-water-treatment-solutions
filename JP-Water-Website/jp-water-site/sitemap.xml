@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://YOUR-DOMAIN.com/</loc><lastmod>2026-10-27</lastmod></url>
   <url><loc>https://YOUR-DOMAIN.com/services/</loc><lastmod>2026-10-27</lastmod></url>
+  <url><loc>https://YOUR-DOMAIN.com/services/stp/</loc><lastmod>2026-10-27</lastmod></url>
+  <url><loc>https://YOUR-DOMAIN.com/services/stp-operation/</loc><lastmod>2026-10-27</lastmod></url>
+  <url><loc>https://YOUR-DOMAIN.com/services/ro-plant/</loc><lastmod>2026-10-27</lastmod></url>
+  <url><loc>https://YOUR-DOMAIN.com/services/etp/</loc><lastmod>2026-10-27</lastmod></url>
+  <url><loc>https://YOUR-DOMAIN.com/services/water-softener/</loc><lastmod>2026-10-27</lastmod></url>
+  <url><loc>https://YOUR-DOMAIN.com/services/amc/</loc><lastmod>2026-10-27</lastmod></url>
+  <url><loc>https://YOUR-DOMAIN.com/services/industrial-water-treatment/</loc><lastmod>2026-10-27</lastmod></url>
   <url><loc>https://YOUR-DOMAIN.com/about-us/</loc><lastmod>2026-10-27</lastmod></url>
   <url><loc>https://YOUR-DOMAIN.com/contact-us/</loc><lastmod>2026-10-27</lastmod></url>
 </urlset>

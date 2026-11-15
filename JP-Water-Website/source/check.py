@@ -17,36 +17,41 @@ class P(HTMLParser):
         if s.in_t:s.t+=d
     def handle_endtag(s,tag):
         if tag=="title":s.in_t=False
-pages={"/":"index.html","/services/":"services/index.html","/about-us/":"about-us/index.html","/contact-us/":"contact-us/index.html","/privacy-policy/":"privacy-policy/index.html"}
+pages={"/":"index.html","/services/":"services/index.html","/about-us/":"about-us/index.html","/contact-us/":"contact-us/index.html","/privacy-policy/":"privacy-policy/index.html","/services/stp/":"services/stp/index.html","/services/stp-operation/":"services/stp-operation/index.html","/services/ro-plant/":"services/ro-plant/index.html","/services/etp/":"services/etp/index.html","/services/water-softener/":"services/water-softener/index.html","/services/amc/":"services/amc/index.html","/services/industrial-water-treatment/":"services/industrial-water-treatment/index.html"}
 socketserver.TCPServer.allow_reuse_address=True;srv=socketserver.TCPServer(("127.0.0.1",8791),http.server.SimpleHTTPRequestHandler);threading.Thread(target=srv.serve_forever,daemon=True).start()
 def code(u):
     try:return urllib.request.urlopen("http://127.0.0.1:8791"+u).status
     except urllib.error.HTTPError as e:return e.code
 parsed={};bad=0
 for u,f in pages.items():
-    p=P();p.feed(open(f).read());parsed[u]=p
+    p=P();p.feed(open(f,encoding="utf-8").read());parsed[u]=p
     print(u,"status",code(u),"| h1:",p.h1,"| canonical:",p.canon,"| noindex:", "noindex" in (p.meta.get("robots") or ""),"| title",len(p.t),"| desc",len(p.meta["description"]))
     for im in p.imgs:
-        if not im.get("alt") or not im.get("width"):print("  IMG issue",im);bad+=1
+        issues=[]
+        alt=im.get("alt")
+        if not alt or not alt.strip():issues.append("missing or empty alt")
+        if not im.get("width"):issues.append("missing width")
+        if issues:print("  IMG issue",u,im.get("src"),", ".join(issues));bad+=len(issues)
 for u,p in parsed.items():
     for l in p.links:
         if l.startswith(("tel:","http","mailto:")):continue
         path,_,frag=l.partition("#");path=path or u
         if code(path)!=200:print("BROKEN",u,l);bad+=1
         elif frag and frag not in parsed.get(path,P()).ids:print("BAD ANCHOR",u,l);bad+=1
-print("dup titles:",len({p.t for p in parsed.values()})!=4,"dup desc:",len({p.meta['description'] for p in parsed.values()})!=4)
+page_count=len(parsed)
+print("dup titles:",len({p.t for p in parsed.values()})!=page_count,"dup desc:",len({p.meta['description'] for p in parsed.values()})!=page_count)
 for f in ["sitemap.xml","robots.txt","assets/style.css","assets/site.js"]:print(f,code("/"+f))
 for f in os.listdir("public/images"):
     if code("/public/images/"+f)!=200:print("missing img",f);bad+=1
-for h in open("index.html").read().count('application/ld+json'),:pass
+for h in open("index.html",encoding="utf-8").read().count('application/ld+json'),:pass
 import re
 for u,f in pages.items():
-    for m in re.findall(r'<script type="application/ld\+json">(.*?)</script>',open(f).read()):json.loads(m)
+    for m in re.findall(r'<script type="application/ld\+json">(.*?)</script>',open(f,encoding="utf-8").read()):json.loads(m)
 print("JSON-LD parses OK; problems:",bad)
 import re
-allh="".join(open(f).read() for f in pages.values())
+allh="".join(open(f,encoding="utf-8").read() for f in pages.values())
 print("branch/office mentions:",re.findall(r"(?i)(?:branch|office)[^<.]{0,60}(?:kerala|bengaluru)",allh))
-hm=open("index.html").read()
+hm=open("index.html",encoding="utf-8").read()
 print("home H1 ok:","Water Treatment Solutions Across Tamil Nadu</h1>" in hm, "| support text ok:","Complete water treatment solutions, from plant manufacturing and installation to operation, staff training, and ongoing maintenance." in hm)
-print("cards on home:",hm.count('class="card pc'),"| service sections:",open("services/index.html").read().count('class="svc"'))
-print("phone intact:", all("+91 99948 85701" in open(f).read() or "+919994885701" in open(f).read() for f in pages.values()))
+print("cards on home:",hm.count('class="card pc'),"| service sections:",open("services/index.html",encoding="utf-8").read().count('class="svc"'))
+print("phone intact:", all("+91 99948 85701" in open(f,encoding="utf-8").read() or "+919994885701" in open(f,encoding="utf-8").read() for f in pages.values()))

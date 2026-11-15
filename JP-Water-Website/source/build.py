@@ -1,4 +1,4 @@
-import json,os
+import json,os,shutil
 ASSET_V="20261030"
 from urllib.parse import quote
 BASE="https://YOUR-DOMAIN.com"   # replace before launch
@@ -130,13 +130,13 @@ LB={"@context":"https://schema.org","@type":"LocalBusiness","@id":BASE+"/#busine
 def crumb(name,path):
     return ld({"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":BASE+"/"},{"@type":"ListItem","position":2,"name":name,"item":BASE+path}]})
 def top(cur):
-    subs="".join(f'<li><a href="/services/#{s["id"]}">{s["nm"]}</a></li>' for s in S)
+    subs="".join(f'<li><a href="/services/{s["id"]}/">{s["nm"]}</a></li>' for s in S)
     items=""
     for hh,n in NAV:
         ca=' aria-current="page"' if hh==cur else ''
         items+=(f'<li class="has-sub"><a href="{hh}"{ca}>{n}</a><button type="button" class="sub-toggle" aria-expanded="false" aria-label="Show services menu">&#9662;</button><ul class="sub">{subs}</ul></li>' if hh=="/services/" else f'<li><a href="{hh}"{ca}>{n}</a></li>')
     return f'''<div class="topbar" role="region" aria-label="Contact details"><div class="wrap"><span>Kovaipudur, Coimbatore, Tamil Nadu</span><span><a href="tel:{PHONE_T}" data-track="call_click">{PHONE_D}</a> &middot; <a href="https://wa.me/{WA}" target="_blank" rel="noopener" data-track="whatsapp_click">WhatsApp</a></span></div></div>
-<header class="site"><div class="wrap nav"><a class="brand" href="/"><img src="/assets/logo-96.webp" width="48" height="48" alt="" decoding="async">{NAME}</a>
+<header class="site"><div class="wrap nav"><a class="brand" href="/"><img src="/assets/logo-96.webp" width="48" height="48" alt="JP Water Treatment Solutions logo" decoding="async">{NAME}</a>
 <button id="menu" aria-label="Toggle menu" aria-expanded="false" aria-controls="links">Menu</button>
 <nav class="nav" aria-label="Main" style="height:auto"><ul id="links">{items}</ul></nav>
 <a class="btn hq" href="/contact-us/#quote" data-track="get_quote_click">Get a Quote</a></div></header>
@@ -150,7 +150,7 @@ FOOT=f'''</main>
 <footer>{CBFOOT}<div class="wrap cols">
 <div><img src="/assets/logo-192.webp" width="96" height="96" alt="JP Water Treatment Solutions logo" loading="lazy" decoding="async" style="margin-bottom:12px"><h2>{NAME}</h2><p>Water and wastewater treatment: plant manufacturing, installation, operation, staff training and maintenance.</p><p><a href="{GBP}" target="_blank" rel="noopener">Find us on Google</a></p><div class="soc"><a href="{FB}" target="_blank" rel="noopener" aria-label="JP Water Treatment Solutions on Facebook" data-track="social_click"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M14 8V6.500c0-.7.3-1 1-1h2V2h-3a4 4 0 0 0-4 4v2H7v3.500h3V22h4V11.500h3l.5-3.500H14z"/></svg></a><a href="{IG}" target="_blank" rel="noopener" aria-label="JP Water Treatment Solutions on Instagram" data-track="social_click"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.500" cy="6.500" r="1" fill="currentColor" stroke="none"/></svg></a><a href="{GBP}" target="_blank" rel="noopener" aria-label="JP Water Treatment Solutions on Google" data-track="gbp_click"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-6 7-11a7 7 0 0 0-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.500"/></svg></a></div></div>
 <div><h2>Useful Links</h2><ul>{"".join(f'<li><a href="{h}">{n}</a></li>' for h,n in NAV)}<li><a href="/privacy-policy/">Privacy Policy</a></li></ul></div>
-<div><h2>Our Services</h2><ul>{"".join(f'<li><a href="/services/#{s["id"]}">{s["nm"]}</a></li>' for s in S)}</ul></div>
+<div><h2>Our Services</h2><ul>{"".join(f'<li><a href="/services/{s["id"]}/">{s["nm"]}</a></li>' for s in S)}</ul></div>
 <div><h2>Get in Touch</h2><address>CBM College Road, Bharathi Nagar,<br>Kovaipudur, Coimbatore,<br>Tamil Nadu 641042</address><p style="margin:.6em 0">Serving Tamil Nadu, Kerala &amp; Bengaluru</p>
 <p><a href="tel:{PHONE_T}" data-track="call_click">{PHONE_D}</a> (Managing Director)<br><a href="tel:+919843010518" data-track="call_click">+91 98430 10518</a> (Manager)<br><a href="mailto:{EMAIL}" data-track="email_click">{EMAIL}</a><br><a href="https://wa.me/{WA}" target="_blank" rel="noopener" data-track="whatsapp_click">WhatsApp</a><br><a href="{MAPS}" target="_blank" rel="noopener">View on Google Maps</a></p></div>
 </div><div class="wrap" style="margin-top:26px;font-size:.85rem;opacity:.9">&copy; 2026 {NAME} &middot; <button type="button" class="linklike" id="cookie-settings" hidden>Cookie settings</button></div><div class="consent" id="consent" role="dialog" aria-label="Cookie consent" hidden><p>We would like to use analytics cookies to understand how visitors use this site and improve it. See our <a href="/privacy-policy/">Privacy Policy</a>.</p><div class="btns"><button type="button" class="btn" id="consent-yes">Accept</button><button type="button" class="btn ghost" id="consent-no">Decline</button></div></div></footer>
@@ -165,17 +165,32 @@ def ctas(extra=""):
     return f'<div class="btns"><a class="btn" href="/contact-us/#quote" data-track="get_quote_click">Get a Quote</a><a class="btn ghost" href="tel:{PHONE_T}" data-track="call_click">Call Now</a><a class="btn ghost" href="https://wa.me/{WA}" target="_blank" rel="noopener" data-track="whatsapp_click">WhatsApp Us</a></div>'
 def band(h,p):return f'<div class="cta"><div class="wrap"><h2>{h}</h2><p>{p}</p>{ctas()}</div></div>\n'
 def w(path,html):
-    os.makedirs("out/"+path,exist_ok=True);open("out/"+path+"/index.html" if path else "out/index.html","w").write(html)
+    os.makedirs("out/"+path,exist_ok=True);open("out/"+path+"/index.html" if path else "out/index.html","w",encoding="utf-8").write(html)
+
+def sync_static():
+    out_dir = os.path.join(os.getcwd(), "out")
+    os.makedirs(out_dir, exist_ok=True)
+    for folder in ("assets", "public"):
+        src = os.path.join(os.getcwd(), folder)
+        dst = os.path.join(out_dir, folder)
+        if not os.path.isdir(src):
+            continue
+        if os.path.isdir(dst):
+            shutil.rmtree(dst)
+        if os.path.isdir(src):
+            shutil.copytree(src, dst)
+
+sync_static()
 PAGES={}
 TICK=["STP manufacturing &amp; installation","STP operation","Manpower &amp; staff training","AMC &amp; maintenance","RO plants","Water softeners","ETP &amp; industrial wastewater","Industrial water treatment"]
 # HOME
-t="Water Treatment Company in Tamil Nadu | JP Water Treatment"
-d="Coimbatore-based water treatment company serving Tamil Nadu, Kerala and Bengaluru: STP, RO, ETP, softeners and AMC, from manufacturing to maintenance."
+t="Water Treatment Solutions in Coimbatore, India | JP Water"
+d="Coimbatore STP, RO, ETP, softener, AMC and industrial water treatment for homes, apartments, factories and projects across Tamil Nadu, Kerala and Bengaluru."
 PAGES["/"]=(t,d,"Water Treatment Solutions Across Tamil Nadu","water treatment company Tamil Nadu; services in Coimbatore; Kerala, Bengaluru")
 pre='<link rel="preload" as="image" href="/public/images/projects/project-rooftop-vessels-1536.webp" type="image/webp" imagesrcset="/public/images/projects/project-rooftop-vessels-800.webp 800w, /public/images/projects/project-rooftop-vessels-1536.webp 1536w" imagesizes="100vw" fetchpriority="high">\n'
 BY={x["id"]:x for x in S}
 def pcard(i):
-    x=BY[i];return f'<article class="card pc rv">{pic(x["k"],x["alt"],sizes="(max-width:700px) 100vw, 360px")}<div class="body"><h3>{x["nm"]}</h3><p>{x["card"]}</p><a class="more" href="/services/#{x["id"]}">{x["anc"]} &rarr;</a></div></article>\n'
+    x=BY[i];return f'<article class="card pc rv">{pic(x["k"],x["alt"],sizes="(max-width:700px) 100vw, 360px")}<div class="body"><h3>{x["nm"]}</h3><p>{x["card"]}</p><a class="more" href="/services/{x["id"]}/">{x["anc"]} &rarr;</a></div></article>\n'
 SL=[("STP manufacturing and installation","stp"),("STP operation, manpower and staff training","stp-operation"),("AMC with scheduled visits and inspection reports","amc"),("RO plant installation and drinking-water treatment","ro-plant"),("Water softener and hard-water treatment","water-softener"),("ETP and industrial wastewater management","etp"),("Industrial water treatment solutions","industrial-water-treatment")]
 h=head(t,d,"/",ld(LB)+ld({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":q,"acceptedAnswer":{"@type":"Answer","text":a}} for q,a in FAQ]}),pre)+top("/")
 ICO={"fac":"M3 21h18M5 21V8l5 3V8l5 3V5h4v16","pin":"M12 21s7-6 7-11a7 7 0 0 0-14 0c0 5 7 11 7 11zM12 12a2 2 0 1 0 0-4 2 2 0 0 0 0 4","tool":"M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.5-.5-.5-2.5z","tel":"M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"}
@@ -184,8 +199,28 @@ ICO["globe"]="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM3 12h18M12 3c3 3 3 15 0 18M12
 ico=lambda k:f'<div class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="{ICO[k]}"/></svg></div>'
 def card(sid):
     x=next(v for v in S if v["id"]==sid)
-    return f'<article class="card pc">{pic(x["k"],x["alt"],sizes="(max-width:700px) 100vw, 360px")}<div class="body"><h3>{x["nm"]}</h3><p>{x["card"]}</p><a class="more" href="/services/#{x["id"]}">{x["anc"]} &rarr;</a></div></article>'
+    return f'<article class="card pc">{pic(x["k"],x["alt"],sizes="(max-width:700px) 100vw, 360px")}<div class="body"><h3>{x["nm"]}</h3><p>{x["card"]}</p><a class="more" href="/services/{x["id"]}/">{x["anc"]} &rarr;</a></div></article>'
 panel=lambda ids:'<div class="cards">'+"".join(card(i) for i in ids)+'</div>'
+
+def svc_page(s):
+    path=f"/services/{s['id']}/"
+    title, desc = SERVICE_META[s['id']]
+    wa="https://wa.me/"+WA+"?text="+quote("Hello JP Water Treatment Solutions, I need a quote for "+s["nm"]+".")
+    intro = s["intro"]
+    detail_list = s["svc"] if isinstance(s["svc"], list) else [s["svc"]]
+    return head(title, desc, path, ld(LB)+crumb(s["nm"], path))+top("/services/")+f'''
+<div class="pagehead"><div class="wrap"><nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/services/">Services</a> / {s["nm"]}</nav><h1>{s["h"]}</h1><p>{intro}</p></div></div>
+<section><div class="wrap two" style="align-items:center"><div><span class="eyebrow">Service overview</span><h2>{s["nm"]}</h2>
+<p>{intro}</p>
+<div class="btns"><a class="btn" href="/contact-us/#quote" data-track="get_quote_click">Get a Quote</a><a class="btn line" href="{wa}" target="_blank" rel="noopener" data-track="whatsapp_click">WhatsApp Us</a></div>
+</div><div>{pic(s['k'], s['alt'], sizes="(max-width:820px) 100vw, 520px")}</div></div></section>
+<section class="alt"><div class="wrap two"><div><h3>Common problems and requirements</h3><ul>{''.join(f'<li>{x}</li>' for x in s['prob'])}</ul></div><div><h3>Typical applications</h3><ul>{''.join(f'<li>{x}</li>' for x in s['apps'])}</ul></div></div></section>
+<section><div class="wrap"><h2>What is included</h2><ul>{''.join(f'<li>{x}</li>' for x in detail_list)}</ul>
+{f'<p>{s["note"]}</p>' if s.get("note") else ''}
+<h2>What to share for a quote</h2><ul>{''.join(f'<li>{x}</li>' for x in s['info'])}</ul>
+<p><a href="/services/">Back to all services</a> &middot; <a href="/contact-us/#quote">Request a quote</a></p></div></section>
+'''+FOOT
+
 ABOUTPIC=pic("stp","Sewage treatment plant room with an electrical control panel, a blower and pumps",sizes="(max-width:820px) 100vw, 520px")
 h+=f'''<section class="hero" id="top"><picture><source type="image/webp" srcset="/public/images/projects/project-rooftop-vessels-800.webp 800w, /public/images/projects/project-rooftop-vessels-1536.webp 1536w" sizes="100vw"><img src="/public/images/projects/project-rooftop-vessels-1536.jpg" width="1536" height="1024" fetchpriority="high" alt="Two large blue water treatment pressure vessels with pipework on a rooftop plant, with hills in the background"></picture>
 <div class="wrap herogrid"><div class="herotxt"><span class="tag">Based in Coimbatore, Tamil Nadu</span><h1>Water Treatment Solutions Across Tamil Nadu</h1>
@@ -203,7 +238,7 @@ h+=f'''<section class="hero" id="top"><picture><source type="image/webp" srcset=
 <div class="tabpanel" id="tp-om" role="tabpanel" aria-labelledby="tb-om">{panel(["stp-operation","amc"])}</div></div></section>
 <section id="projects"><div class="wrap"><span class="eyebrow">Our projects</span><h2>A look at our work</h2><p class="lead">Photographs from our projects. Select a photo to view it larger.</p>
 <div class="gallery"><figure class="gitem"><a class="gal" href="/public/images/projects/project-stp-1536.jpg" data-cap="Sewage Treatment Plant"><picture><source type="image/webp" srcset="/public/images/projects/project-stp-800.webp"><img src="/public/images/projects/project-stp-800.jpg" width="800" height="533" loading="lazy" decoding="async" alt="Sewage treatment plant room with an electrical control panel, a blower and pumps"></picture></a><figcaption>Sewage Treatment Plant</figcaption></figure><figure class="gitem"><a class="gal" href="/public/images/projects/project-ro-1536.jpg" data-cap="RO Plant"><picture><source type="image/webp" srcset="/public/images/projects/project-ro-800.webp"><img src="/public/images/projects/project-ro-800.jpg" width="800" height="533" loading="lazy" decoding="async" alt="RO plant with membrane pressure vessels on a steel rack and white pipework"></picture></a><figcaption>RO Plant</figcaption></figure><figure class="gitem"><a class="gal" href="/public/images/projects/project-softener-1536.jpg" data-cap="Water Softener"><picture><source type="image/webp" srcset="/public/images/projects/project-softener-800.webp"><img src="/public/images/projects/project-softener-800.jpg" width="800" height="533" loading="lazy" decoding="async" alt="Large blue water softener pressure vessel with pipework on a rooftop plant area"></picture></a><figcaption>Water Softener</figcaption></figure><figure class="gitem"><a class="gal" href="/public/images/projects/project-pressure-vessel-1536.jpg" data-cap="Pressure vessel and pipework"><picture><source type="image/webp" srcset="/public/images/projects/project-pressure-vessel-800.webp"><img src="/public/images/projects/project-pressure-vessel-800.jpg" width="800" height="533" loading="lazy" decoding="async" alt="Person working at a fibreglass pressure vessel with pipework and a control box at an outdoor plant"></picture></a><figcaption>Pressure vessel and pipework</figcaption></figure><figure class="gitem"><a class="gal" href="/public/images/projects/project-rooftop-vessels-1536.jpg" data-cap="Pressure vessels on a rooftop plant"><picture><source type="image/webp" srcset="/public/images/projects/project-rooftop-vessels-800.webp"><img src="/public/images/projects/project-rooftop-vessels-800.jpg" width="800" height="533" loading="lazy" decoding="async" alt="Two large blue pressure vessels with pipework on a rooftop plant, with hills in the background"></picture></a><figcaption>Pressure vessels on a rooftop plant</figcaption></figure></div>
-<dialog id="lb" class="lb" aria-label="Project photo"><button type="button" class="lb-x" aria-label="Close photo">&times;</button><img id="lb-img" alt="" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="><p id="lb-cap"></p></dialog></div></section>
+<dialog id="lb" class="lb" aria-label="Project photo"><button type="button" class="lb-x" aria-label="Close photo">&times;</button><img id="lb-img" alt="Selected project photo" width="800" height="533" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="><p id="lb-cap"></p></dialog></div></section>
 <!-- CUSTOMER FEEDBACK: real Google reviews shown as written. To add another review, copy one figure with class "slide" inside the block below and change the name and text. -->
 <section class="alt" id="feedback"><div class="wrap"><span class="eyebrow">Customer feedback</span><h2>What our customers say</h2><div class="slider" data-slider><div class="viewport"><div class="slides"><figure class="slide"><blockquote lang="ta">JP Water Treatment Solutions-ன் சேவை மிகவும் அருமையாக இருந்தது. முதல் தொடர்பிலிருந்தே மிகவும் மரியாதையாகவும், பொறுமையாகவும் அனைத்து சந்தேகங்களுக்கும் தெளிவாக விளக்கம் அளித்தார்கள். சரியான நேரத்தில் வந்து இன்ஸ்டாலேஷனை முடித்தவுடன், Water Purifier-ஐ எப்படி பயன்படுத்துவது மற்றும் பராமரிப்பது என்பதையும் விரைவாக சொல்லிக் கொடுத்தார்கள். பொருளின் தரம் மிகவும் சிறப்பாக உள்ளது, தண்ணீரின் சுவையும் தரமும் நல்ல முன்னேற்றம் அடைந்துள்ளது. விற்பனைக்குப் பிறகும் தேவையான உதவியை உடனுக்குடன் வழங்கும் சிறந்த Customer Support உள்ளது. நம்பகமான சேவை, தரமான பொருட்கள், நியாயமான விலை மற்றும் தொழில்முறை அணுகுமுறை ஆகியவற்றால் நான் மிகவும் திருப்தி அடைந்தேன். Water Purifier வாங்க நினைப்பவர்கள் கண்டிப்பாக JP Water Treatment Solutions-ஐ தேர்வு செய்யலாம். மனப்பூர்வமான நன்றி!</blockquote><figcaption><span class="rev-av" aria-hidden="true">C</span><span><b>Chandru Cham</b><span>Google review</span></span><span class="stars" role="img" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></figcaption></figure><figure class="slide"><blockquote>I had a great experience with JP Water Treatment Solutions. Their team is professional, knowledgeable, and provides excellent support. They offer quality solutions for Water Softener Plants, RO Plants, STP, and WTP systems. The installation was completed on time, and they explained the operation and maintenance clearly. I appreciate their prompt service and commitment to customer satisfaction. I would definitely recommend JP Water Treatment Solutions to anyone looking for reliable water treatment services.</blockquote><figcaption><span class="rev-av" aria-hidden="true">A</span><span><b>A Jibila</b><span>Google review</span></span><span class="stars" role="img" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></figcaption></figure></div></div><div class="sl-ctrl"><button type="button" class="prev" aria-label="Previous review">&lsaquo;</button><div class="dots"></div><button type="button" class="next" aria-label="Next review">&rsaquo;</button><button type="button" class="pp" aria-label="Pause automatic review rotation" aria-pressed="false">&#10074;&#10074;</button></div></div><p style="text-align:center;margin-top:28px"><a class="btn" href="{GBP}" target="_blank" rel="noopener" data-track="gbp_click">View Customer Reviews</a></p></div></section>
 <section id="support"><div class="wrap"><span class="eyebrow">End-to-end support</span><h2>From plant to long-term care</h2><p class="lead">One company for the plant, the people who run it and the maintenance that keeps it working.</p>
@@ -220,9 +255,21 @@ w("",h)
 SHORT={"stp":"STP Plant","stp-operation":"STP Operation","ro-plant":"RO Plant","etp":"ETP","water-softener":"Softener","amc":"AMC","industrial-water-treatment":"Industrial"}
 JUMP='<nav class="jump" aria-label="Jump to a service"><div class="wrap">'+"".join(f'<a href="#{s["id"]}">{SHORT[s["id"]]}</a>' for s in S)+'</div></nav>\n'
 # SERVICES
-t="STP, RO, ETP & AMC Services in Tamil Nadu | JP Water";d="STP installation, operation and AMC, RO plants, ETP, water softeners and industrial water treatment from Coimbatore, serving Tamil Nadu, Kerala and Bengaluru."
+t="Water Treatment Services in Coimbatore | JP Water";d="STP, RO, ETP, softener and AMC water treatment from Coimbatore for homes, apartments, factories and projects across Tamil Nadu, Kerala and Bengaluru."
 PAGES["/services/"]=(t,d,"Water Treatment Services in Tamil Nadu, Kerala & Bengaluru","STP, RO, ETP, softener, AMC, industrial; Coimbatore base")
-sv=[{"@type":"ListItem","position":i+1,"item":{"@type":"Service","name":s["h"],"serviceType":s["nm"],"url":BASE+"/services/#"+s["id"],"provider":{"@id":BASE+"/#business"},"areaServed":AREAS}} for i,s in enumerate(S)]
+SERVICE_META={
+    "stp": ("STP Plant Installation in Coimbatore, Tamil Nadu | JP Water","STP plant manufacturing and installation in Coimbatore for apartments, communities, hospitals and commercial sites, with commissioning support across Tamil Nadu, Kerala and Bengaluru."),
+    "stp-operation": ("STP Plant Operation and Training in Coimbatore | JP Water","STP operation, manpower and staff training for apartment and commercial plants across Tamil Nadu, Kerala and Bengaluru with practical support."),
+    "ro-plant": ("RO Plant Installation in Coimbatore, Tamil Nadu | JP Water","RO plant installation and drinking-water treatment for homes, hospitals, factories and commercial spaces across Tamil Nadu, Kerala and Bengaluru with maintenance support."),
+    "etp": ("ETP and Industrial Wastewater Treatment in Coimbatore | JP Water","ETP and industrial wastewater treatment for factories and businesses in Coimbatore, Tamil Nadu, Kerala and Bengaluru with design and maintenance support."),
+    "water-softener": ("Water Softener Solutions in Coimbatore, Tamil Nadu | JP Water","Water softener systems for hard water in homes, hospitals, hotels and commercial buildings across Tamil Nadu, Kerala and Bengaluru with treatment support."),
+    "amc": ("AMC and Maintenance for Water Treatment Plants | JP Water","Annual maintenance contracts for STP, RO, ETP and softener plants with scheduled servicing, inspections and reports across Tamil Nadu, Kerala and Bengaluru."),
+    "industrial-water-treatment": ("Industrial Water Treatment in Coimbatore, Tamil Nadu | JP Water","Industrial water treatment systems for process, boiler, cooling and reuse needs in Coimbatore, Tamil Nadu, Kerala and Bengaluru with project-based support."),
+}
+for s in S:
+    title,desc=SERVICE_META[s['id']]
+    PAGES[f"/services/{s['id']}/"]=(title,desc,s['h'],s['q'])
+sv=[{"@type":"ListItem","position":i+1,"item":{"@type":"Service","name":s["h"],"serviceType":s["nm"],"url":BASE+"/services/"+s["id"]+"/","provider":{"@id":BASE+"/#business"},"areaServed":AREAS}} for i,s in enumerate(S)]
 h=head(t,d,"/services/",ld(LB)+crumb("Services","/services/")+ld({"@context":"https://schema.org","@type":"ItemList","itemListElement":sv}))+top("/services/")
 h+='<div class="pagehead ph-services"><div class="wrap"><nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> / Services</nav><h1>Water Treatment Services in Tamil Nadu, Kerala &amp; Bengaluru</h1><p>Based in Coimbatore, we provide STP manufacturing and installation, plant operation and training, AMC, RO, water softener, ETP and industrial water treatment services across Tamil Nadu, Kerala and Bengaluru.</p></div></div>\n'+JUMP+'<section style="padding-top:20px"><div class="wrap">\n'
 li=lambda a:"".join(f"<li>{x}</li>" for x in a)
@@ -235,7 +282,7 @@ for s in S:
     wa="https://wa.me/"+WA+"?text="+quote("Hello JP Water Treatment Solutions, I need a quote for "+s["nm"]+".")
     h+=f'''<article class="svc" id="{s["id"]}">{pic(s["k"],s["alt"])}<div><h2>{s["h"]}</h2><p>{s["intro"]}</p>
 <div class="glance"><b>At a glance</b><dl>{gl}</dl></div>
-<div class="btns"><a class="btn" href="/contact-us/?service={s["q"]}#quote" data-track="get_quote_click" aria-label="Get a quote for {s["nm"]}">Get a Quote</a><a class="btn line" href="{wa}" target="_blank" rel="noopener" data-track="whatsapp_click">WhatsApp Us</a></div>
+<div class="btns"><a class="btn" href="/contact-us/#quote" data-track="get_quote_click" aria-label="Get a quote for {s["nm"]}">Get a Quote</a><a class="btn line" href="{wa}" target="_blank" rel="noopener" data-track="whatsapp_click">WhatsApp Us</a></div>
 <details class="fd"><summary>Full scope and quote checklist</summary><h3>{s.get("svch","Installation and maintenance")}</h3>{sv_}{nt}<h3>What to share when requesting a quote</h3><ul>{li(s["info"])}</ul></details></div>
 <div class="dual"><div><h3>Problems and requirements it addresses</h3><ul>{li(s["prob"])}</ul></div><div><h3>Suitable applications</h3><ul>{li(s["apps"])}</ul></div></div></article>\n'''
 h+='''</div></section>
@@ -246,8 +293,10 @@ h+='''</div></section>
 <section><div class="wrap"><span class="eyebrow">Service coverage</span><h2>Where we provide our services</h2><p class="lead">Our office is in Kovaipudur, Coimbatore. We provide water treatment services in Coimbatore and across Tamil Nadu, Kerala and Bengaluru, Karnataka. Share your site location and we will discuss your requirement.</p></div></section>
 '''+band("Not sure which solution you need?","Describe your requirement and we will suggest a suitable approach. Learn more <a href=\"/about-us/\" style=\"color:#b6f09c\">about our company</a>.")+FOOT
 w("services",h)
+for s in S:
+    w(f"services/{s['id']}", svc_page(s))
 # ABOUT
-t="About JP Water Treatment Solutions | Coimbatore, Tamil Nadu";d="Established in 2018 in Coimbatore, JP Water Treatment Solutions has completed more than 100 projects across Tamil Nadu, Kerala and Bengaluru."
+t="About JP Water Treatment Solutions in Coimbatore | JP Water";d="JP Water Treatment Solutions is a Coimbatore-based company serving Tamil Nadu, Kerala and Bengaluru with STP, RO, ETP, softener, AMC and industrial services."
 PAGES["/about-us/"]=(t,d,"About JP Water Treatment Solutions","company profile, since 2018, 100+ projects, coverage")
 AFAQ=[("When was JP Water Treatment Solutions established?","We were established in 2018 and have completed more than 100 projects."),
 ("Where are you based?","Our office is at CBM College Road, Bharathi Nagar, Kovaipudur, Coimbatore, Tamil Nadu 641042."),
@@ -256,7 +305,7 @@ AFAQ=[("When was JP Water Treatment Solutions established?","We were established
 ("How do I start an enquiry?","Use the quote form on our contact page, call us or message us on WhatsApp with your site details and requirement.")]
 h=head(t,d,"/about-us/",ld(LB)+crumb("About Us","/about-us/")+ld({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":q,"acceptedAnswer":{"@type":"Answer","text":a}} for q,a in AFAQ]}))+top("/about-us/")
 A=lambda i:next(v for v in S if v["id"]==i)
-lk=lambda ids:"".join(f'<li><a href="/services/#{i}">{A(i)["anc"]}</a></li>' for i in ids)
+lk=lambda ids:"".join(f'<li><a href="/services/{i}/">{A(i)["anc"]}</a></li>' for i in ids)
 h+=f'''<div class="pagehead ph-about"><div class="wrap"><nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> / About Us</nav><h1>About JP Water Treatment Solutions</h1><p>A water and wastewater treatment company based in Coimbatore, Tamil Nadu, serving Tamil Nadu, Kerala and Bengaluru.</p></div></div>
 <section class="abt"><div class="wrap two" style="align-items:center"><div><span class="eyebrow">About us</span><h2>JP Water Treatment Solutions</h2><span class="pill">Since 2018</span>
 <p>JP Water Treatment Solutions was established in 2018 and is based at CBM College Road, Bharathi Nagar, Kovaipudur, Coimbatore. We have completed more than 100 projects.</p>
@@ -276,7 +325,7 @@ h+=f'''<div class="pagehead ph-about"><div class="wrap"><nav class="crumbs" aria
 '''+band("Talk to our team","See all <a href=\"/services/\" style=\"color:#b6f09c\">water treatment services</a> or send us your requirement.")+FOOT
 w("about-us",h)
 # CONTACT
-t="Contact JP Water Treatment Solutions | Coimbatore, Tamil Nadu";d="Contact JP Water Treatment Solutions in Kovaipudur, Coimbatore. Call, WhatsApp or request a quote for water treatment across Tamil Nadu, Kerala and Bengaluru."
+t="Contact JP Water Treatment Solutions in Coimbatore | JP Water";d="Call or message JP Water Treatment Solutions in Coimbatore for STP, RO, ETP, softener and AMC services across Tamil Nadu, Kerala and Bengaluru."
 PAGES["/contact-us/"]=(t,d,"Contact JP Water Treatment Solutions","contact / get a quote")
 opts="".join(f'<option data-key="{s["q"]}">{s["nm"]}</option>' for s in S)
 h=head(t,d,"/contact-us/",ld(LB)+crumb("Contact Us","/contact-us/"))+top("/contact-us/")
@@ -306,7 +355,7 @@ h+=f'''<div class="pagehead ph-contact"><div class="wrap"><nav class="crumbs" ar
 '''+FOOT
 w("contact-us",h)
 # PRIVACY + 404
-t="Privacy Policy | JP Water Treatment Solutions";d="How JP Water Treatment Solutions handles the details you send through this website."
+t="Privacy Policy | JP Water Treatment Solutions | Coimbatore";d="JP Water Treatment Solutions privacy policy covers enquiry records, WhatsApp messages, cookies and analytics in Coimbatore, Tamil Nadu, Kerala and Bengaluru."
 h=head(t,d,"/privacy-policy/",crumb("Privacy Policy","/privacy-policy/"))+top("")
 h+=f'''<div class="pagehead"><div class="wrap"><nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> / Privacy Policy</nav><h1>Privacy Policy</h1><p>Last updated: 1 November 2026</p></div></div>
 <!-- TEMPLATE: review this text (and get legal advice if needed) before publishing -->
@@ -325,9 +374,9 @@ h=head(t,d,"/404.html",robots="noindex, follow").replace(f'<link rel="canonical"
 h+='''<section><div class="wrap" style="text-align:center;max-width:640px"><h1>Page not found</h1><p class="lead" style="margin:0 auto 1.2em">That page does not exist or has moved. Try one of these pages.</p>
 <div class="btns" style="justify-content:center"><a class="btn" href="/">Home</a><a class="btn line" href="/services/">Services</a><a class="btn line" href="/about-us/">About Us</a><a class="btn line" href="/contact-us/">Contact Us</a></div></div></section>
 '''+FOOT
-open("out/404.html","w").write(h)
+open("out/404.html","w",encoding="utf-8").write(h)
 # sitemap, robots
 sm='<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'+"".join(f'  <url><loc>{BASE}{p}</loc><lastmod>2026-10-27</lastmod></url>\n' for p in PAGES)+'</urlset>\n'
-open("out/sitemap.xml","w").write(sm)
-open("out/robots.txt","w").write(f"User-agent: *\nAllow: /\n\nSitemap: {BASE}/sitemap.xml\n")
+open("out/sitemap.xml","w",encoding="utf-8").write(sm)
+open("out/robots.txt","w",encoding="utf-8").write(f"User-agent: *\nAllow: /\n\nSitemap: {BASE}/sitemap.xml\n")
 for p,(t,d,h1,k) in PAGES.items():print(p,len(t),len(d),"|",t,"|",h1)

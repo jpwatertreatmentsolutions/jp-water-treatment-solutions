@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://jp-water-treatment-solutions.vercel.app/sitemap.xml

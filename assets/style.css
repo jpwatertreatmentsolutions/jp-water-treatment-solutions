@@ -216,7 +216,8 @@ details[open]>p{animation:up .4s both}
 .slide figcaption{display:flex;align-items:center;gap:12px;margin-top:18px}
 .slide figcaption b{display:block}
 .rev-av{flex:none;width:44px;height:44px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:700;font-family:"Plus Jakarta Sans","Jakarta Fallback",Inter,sans-serif}
-.stars{margin-left:auto;color:#e89a0c;letter-spacing:2px;font-size:1.15rem}
+.slide figcaption .stars{flex:0 0 auto;margin-left:auto;color:#F5B400;letter-spacing:3px;font-size:1.15rem;line-height:1;white-space:nowrap}
+@media(max-width:359px){.slide figcaption{flex-wrap:wrap}}
 .slide blockquote[lang=ta]{line-height:1.85}
 .slide .tr{color:var(--mute);font-size:.92rem;border-top:1px dashed var(--line);padding-top:12px;margin:14px 0 0}
 .pagehead{position:relative;overflow:hidden;text-align:center;padding:78px 0 72px;background:radial-gradient(circle at 18% 72%,#ffffff22 0 14px,transparent 15px),radial-gradient(circle at 83% 26%,#ffffff22 0 22px,transparent 23px),radial-gradient(circle at 62% 82%,#ffffff1c 0 9px,transparent 10px),linear-gradient(135deg,#0a2342 0%,#0f4c81 55%,#1a8fa0 100%)}
