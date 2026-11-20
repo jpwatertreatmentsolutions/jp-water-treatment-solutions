@@ -6,7 +6,7 @@
    BUSINESS_EMAIL: optional mailto fallback if no endpoint is set.
    Analytics (GA4/GTM) loads only after the visitor clicks Accept in the cookie banner; with no IDs set there is no banner.
    MATH_CHECK    : true shows the quick maths question on the quote form; set false once the form service's spam filter is on. */
-var JP_CONFIG={GA4_ID:"",GTM_ID:"",FORM_ENDPOINT:"",BUSINESS_EMAIL:"",WHATSAPP:"919994885701",MATH_CHECK:true};
+var JP_CONFIG={GA4_ID:"",GTM_ID:"GTM-5N55XQBW",FORM_ENDPOINT:"",BUSINESS_EMAIL:"",WHATSAPP:"919994885701",MATH_CHECK:true};
 (function(){
 var C=JP_CONFIG;window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}
 function load(src){var s=document.createElement("script");s.async=true;s.src=src;document.head.appendChild(s)}
